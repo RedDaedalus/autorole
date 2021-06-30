@@ -107,10 +107,10 @@ export async function handleRequest(request: Request): Promise<Response> {
         },
         method: "PATCH",
         body: JSON.stringify({
-          roles: [
+          roles: Array.from(new Set([
             ...interaction.member.roles.filter(id => !group.roles.some(r => r.role === id) || choices.includes(id)),
             ...choices
-          ]
+          ]))
         })
       });
 
