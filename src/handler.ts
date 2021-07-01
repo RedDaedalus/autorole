@@ -67,6 +67,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       const menu: APISelectMenuComponent = {
         type: ComponentType.SelectMenu,
         custom_id: `edit:${id}`,
+        min_values: group.min || 0,
         max_values: group.max || group.roles.length,
         options: group.roles.map(data => {
           return {
@@ -98,7 +99,7 @@ export async function handleRequest(request: Request): Promise<Response> {
 
       const group = await fetchGroup(interaction.guild_id, parseInt(data[0]));
       //@ts-expect-error
-      const choices: Snowflake[] = interaction.data.values;
+      const choices: Snowflake[] = interaction.data.values || [];
 
       const response = await fetch("https://discord.com/api/v9" + Routes.guildMember(interaction.guild_id, interaction.member.user.id), {
         headers: {

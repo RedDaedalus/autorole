@@ -4,9 +4,9 @@ workers_dev = true
 route = ""
 zone_id = ""
 webpack_config = "webpack.config.js"
-name = "autorole-dev"
+name = "autorole"
 kv_namespaces = [
-    { binding = "GROUPS", id = "6e146432900c4f179c62cd8fc8e3fc45", preview_id = "6e146432900c4f179c62cd8fc8e3fc45" }
+    { binding = "GROUPS", id = "2075a5dbcf3b4b749c159820e6107477", preview_id = "2075a5dbcf3b4b749c159820e6107477" }
 ]
 
 [build]

@@ -1,6 +1,7 @@
 import { Snowflake } from "discord-api-types/v8";
 
 export interface RoleGroup {
+    readonly min: number | undefined;
     readonly max: number | undefined;
     readonly roles: GroupRole[];
     readonly requiredRole: Snowflake | undefined;
