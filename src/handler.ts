@@ -2,6 +2,7 @@ import { APIInteractionResponse, APIInteraction, InteractionType, Routes, Compon
 import { Snowflake } from "discord-api-types/globals";
 import { verifyKey } from "discord-interactions";
 import { fetchGroup } from "./groups";
+import { APIActionRowComponent, APISelectOption, ButtonStyle } from "discord-api-types/v8";
 
 export async function handleRequest(request: Request): Promise<Response> {
   const signature = request.headers.get("X-Signature-Ed25519");
@@ -53,7 +54,7 @@ export async function handleRequest(request: Request): Promise<Response> {
 
       const id = parseInt(data[0]);
       const group = await fetchGroup(interaction.guild_id, id);
-    
+
       if (group.requiredRole && !interaction.member.roles.includes(group.requiredRole)) {
         return respond({
           type: InteractionResponseType.ChannelMessageWithSource,
@@ -64,20 +65,31 @@ export async function handleRequest(request: Request): Promise<Response> {
         });
       }
 
+      const options: APISelectOption[] = group.roles.map(data => {
+        return {
+          label: data.label,
+          value: data.role,
+          emoji: data.emoji ? { id: data.emoji, name: "" } : undefined,
+          default: interaction.member.roles.includes(data.role)
+        }
+      });
+
+      // min = 0, max = 1
+      if (!group.min && group.max === 1) {
+        options.push({
+          label: "Clear",
+          value: "$clear",
+          emoji: { id: "839325739136712725", name: "" },
+          default: false
+        });
+      }
+
       const menu: APISelectMenuComponent = {
         type: ComponentType.SelectMenu,
         custom_id: `edit:${id}`,
         min_values: group.min || 0,
         max_values: group.max || group.roles.length,
-        options: group.roles.map(data => {
-          return {
-            label: data.label,
-            value: data.role,
-            role: data.role,
-            emoji: data.emoji ? { id: data.emoji, name: "typings are annoying" } : undefined, // TODO – Built-in emoji support
-            default: interaction.member.roles.includes(data.role)
-          }
-        })
+        options
       }
 
       return respond({
@@ -99,7 +111,7 @@ export async function handleRequest(request: Request): Promise<Response> {
 
       const group = await fetchGroup(interaction.guild_id, parseInt(data[0]));
       //@ts-expect-error
-      const choices: Snowflake[] = interaction.data.values || [];
+      const choices: Snowflake[] = interaction.data.values.includes("$clear") ? [] : interaction.data.values || [];
 
       const response = await fetch("https://discord.com/api/v9" + Routes.guildMember(interaction.guild_id, interaction.member.user.id), {
         headers: {
